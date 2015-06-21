@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 class Farbpallette
 
   I = Complex::I
@@ -16,6 +17,7 @@ class Farbpallette
 
   end
 
+  # gibt alle Farben zurück
   def farbrueckgabe
     frg = []
     @farben.each do |f|
@@ -24,9 +26,11 @@ class Farbpallette
     return frg
   end
 
+  # ordnet einer Komplexen Zahl eine Zahl zu, beachtet die notwendigen Streckungen nicht, ausserdem sind Farbwerte nicht ganzzahlig
   def farben(pos)
     sum = 0
-    farbe = [0,0,0]
+    farb_wahl = []
+    gewichte = []
     3.times do |i|
       3.times do |j|
         if i != 1
@@ -46,28 +50,60 @@ class Farbpallette
         pos_hier = x + I * y
         pos_hier_strich = x_strich + I * y_strich
         if klein?(pos_hier_strich)
-          staerke = (Math::cos([((pos_hier.real - pos.real) * Math::PI * 2).abs, Math::PI].min) + 1) / 2
-          staerke *= (Math::cos([((pos_hier.imag - pos.imag) * Math::PI * 2).abs, Math::PI].min) + 1) / 2
+          gewicht = ((Math::cos([((pos_hier.real - pos.real) * Math::PI * 2).abs, Math::PI].min) + 1) / 2) ** 2
+          gewicht *= ((Math::cos([((pos_hier.imag - pos.imag) * Math::PI * 2).abs, Math::PI].min) + 1) / 2) ** 2
           farbe_hier = @farben[pos_hier_strich.imag][pos_hier_strich.real]
-          farbe[0] += (farbe_hier / 65536) * staerke
-          farbe[1] += ((farbe_hier / 256) % 256) * staerke
-          farbe[2] += (farbe_hier % 256) * staerke
-          sum += staerke
+          farb_wahl.push([farbe_hier / 65536 % 256, farbe_hier / 256 % 256, farbe_hier % 256])
+          sum += gewicht
+          gewichte.push(gewicht)
         end
       end
     end
-    if sum > 0
-      farbe.collect! {|f|
-        f /= sum
-      }
-    end
+    gewichte.collect! {|g| g / sum}
+    farbe = durchschnitt(gewichte, farb_wahl)
     farbe
   end
 
+  # gewichteter Farbdurchschnitt, erhält Kräftigkeit der Farben sowie deren Helligkeit
+  def durchschnitt(gewichte, farb_wahl)
+    hell = 0.0
+    sum = [0,0,0]
+    kraft = 0
+    farb_wahl.each_with_index do |f,i|
+      hell += (f[0] + f[1] + f[2]) * gewichte[i]
+      sum[0] += f[0] * gewichte[i]
+      sum[1] += f[1] * gewichte[i]
+      sum[2] += f[2] * gewichte[i]
+      kraft += kraeftig(f) * gewichte[i]
+    end
+    sum[0] -= hell / 3
+    sum[1] -= hell / 3
+    sum[2] -= hell / 3
+    minus_max_sum = sum.min
+    plus_max_sum = sum.max
+    faktor = [[(kraft - 1.0 / 3) * hell / minus_max_sum, (kraft - 1.0 / 3) * (765 - hell) / minus_max_sum].min, [(1.0 / 3 - kraft) * hell / plus_max_sum, (1.0 / 3 - kraft) * (765 - hell) / plus_max_sum].min].min
+    farbe = [faktor * sum[0] + hell / 3, faktor * sum[1] + hell / 3, faktor * sum[2] + hell / 3]
+    return farbe
+  end
+
+  # Funktion zur Berechnung, wie kräftig eine Farbe ist
+  def kraeftig(farbe)
+    hell = farbe[0] + farbe[1] + farbe[2]
+    if hell == 0 or hell == 765
+      return 1 / 3.0
+    end
+    min_rot = [(255 - farbe[0]) / (765.0 - hell), farbe[0] / hell.to_f].min
+    min_blau = [(255 - farbe[1]) / (765.0 - hell), farbe[1] / hell.to_f].min
+    min_gruen = [(255 - farbe[2]) / (765.0 - hell), farbe[2] / hell.to_f].min
+    return [min_rot, min_blau, min_gruen].min
+  end
+
+  # gibt zurück, ob eine Komplexe Zahl bereits im Rechteck drinnen ist, in dem die Farben bestimmt sind.
   def klein?(c)
     c.real < @breite and c.real >= 0 and c.imag < @hoehe and c.imag >= 0
   end
 
+  # erstellt die Farbmatrix
   def farbenerstellen
     m = []
     @hoehe.times do
@@ -82,6 +118,7 @@ class Farbpallette
     m
   end
 
+  # ordnet einer Reellen Zahl eine Farbe zu, beachtet die Streckungen, Rückgaben ganzzahlig
   def nahfarbe(pos)
     faktor = [(pos.real * 2.0 / @breite - 1).abs, (2.0 * pos.imag / @hoehe - 1).abs].max
     verhaeltnis = Math::log(faktor)/Math::log(@zufall.faktor)
@@ -91,8 +128,8 @@ class Farbpallette
       k = verhaeltnis.to_i
     end
     pos = (pos - @breite / 2.0 - @hoehe / 2.0 * I) / @zufall.faktor ** k + @breite / 2.0 + @hoehe / 2.0 * I
-    sum = 1
-    farbe = [0,0,0]
+    gewichte = []
+    farb_wahl = []
     richtung = pos - I * @hoehe / 2.0 - @breite / 2.0
     richtung = richtung / richtung.abs
     klein = [@breite / richtung.real.abs / 2 / @zufall.faktor, @hoehe / richtung.imag.abs / 2 / @zufall.faktor].min
@@ -101,23 +138,22 @@ class Farbpallette
     pos_klein = (richtung * klein * (@zufall.faktor - EPSILON) + I * @hoehe / 2.0 + @breite / 2.0)
     pos_gross = (richtung * gross / @zufall.faktor + I * @hoehe / 2.0 + @breite / 2.0)
 
-    farbe = farben(pos)
-    staerke = (Math::cos([((gross - mittel) / (gross - klein) * Math::PI * 2).abs, Math::PI].min) + 1) / 2
-    sum += staerke
-    farben(pos_gross).each_with_index do |f, i|
-      farbe[i] += f * staerke
+    farb_wahl.push(farben(pos))
+    farb_wahl.push(farben(pos_gross))
+    farb_wahl.push(farben(pos_klein))
+    gewichte.push(1)
+    gewichte.push(((Math::cos([((gross - mittel) / (gross - klein) * Math::PI * 2).abs, Math::PI].min) + 1) / 2) ** 2)
+    gewichte.push(((Math::cos([((klein - mittel) / (gross - klein) * Math::PI * 2).abs, Math::PI].min) + 1) / 2) ** 2)
+    sum = 0
+    gewichte.each do |g|
+      sum += g
     end
-    staerke = (Math::cos([((klein - mittel) / (gross - klein) * Math::PI * 2).abs, Math::PI].min) + 1) / 2
-    sum += staerke
-    farben(pos_klein).each_with_index do |f, i|
-      farbe[i] += f * staerke
+    gewichte.collect! do |g|
+      g / sum
     end
-    if sum > 0
-      farbe.collect! {|f|
-        f /= sum
-      }
-    end
-    farbe
+    farbe = durchschnitt(gewichte, farb_wahl)
+    farbe.collect! {|f| (f + 0.5).to_i}
+    return farbe
   end
 
   def farbvergleich(farbe1, farbe2)

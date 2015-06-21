@@ -1,6 +1,6 @@
 class Zufall
 
-  Version = "V3-0"
+  Version = "V3-1"
 
   def initialize(zufall)
     @zufall = zufall
@@ -30,7 +30,7 @@ class Zufall
     return x
   end
   
-  def mehrfachspiralwahl
+  def mehrfachspiralwahl?
     @zufall % @wahlsumme < @zykelwahl + @spiralwahl + @mehrfachspiralwahl
   end
 

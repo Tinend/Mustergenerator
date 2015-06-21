@@ -6,7 +6,7 @@ require "/home/ulrich/ruby/blume2-0/bewerter/Bewerter3-0.rb"
 class Feld
 
   I = Complex::I
-  VERSION = "V3-0"
+  VERSION = "V3-1"
 
   def initialize(zufall, hoehe, breite, verkleinerung, verschiebung, farbpallette)
     @schoenheit = 0
@@ -190,7 +190,7 @@ class Feld
         x = 0
         y = 0
         w.push(Wandel.new(:zykel, [mal, (Math::sin(alpha) +  Math::cos(alpha) * I)], (x + I * y)))
-      elsif @zufall.spiralwahl
+      elsif @zufall.spiralwahl?
         @zufall.gewaelt
         if d != 0
           a /= d
@@ -211,7 +211,7 @@ class Feld
         x = 0
         y = 0
         w.push(Wandel.new(:spiral, radius, (x + I * y)))
-      elsif @zufall.mehrfachspiralwahl
+      elsif @zufall.mehrfachspiralwahl?
         @zufall.gewaelt
         if d != 0
           a /= d
@@ -233,10 +233,8 @@ class Feld
         x = 0
         y = 0
         w.push(Wandel.new(:zykel, [mal, (Math::sin(alpha) +  Math::cos(alpha) * I)], (x + I * y)))
-        @zufall /= 5
         radius = spiralradius
         w.push(Wandel.new(:spiral, radius, (x + I * y)))
-        @zufall /= 5
     # elsif false
     #    r = (@zufall % 100 + 1) * 0.1
     #    @zufall /= 100
@@ -246,10 +244,10 @@ class Feld
     #    @zufall /= 100 
     #    zahl = x + I * y
     #    a,b,c,d = moeb_invertieren(a, b, c, d, zahl, r)
-      elsif @zufall.zufaellig(5) == 4
+      elsif @zufall.zufaellig(5) <= 1
         @zufall.gewaelt
-        x = @zufall.pos(10000, 5000)
-        y = @zufall.pos(10000, 5000)
+        x = @zufall.pos(50000, 25000)
+        y = @zufall.pos(50000, 25000)
         a, b, c, d = moeb_verschieben(a,b,c,d, x + I * y)
       else
         @zufall.gewaelt
