@@ -1,0 +1,53 @@
+class Farbpallette
+
+  def initialize(zufall)
+    @zufall = zufall
+    @hoehe_mini = zufall.minihoehe
+    @breite_mini = zufall.minibreite
+    @zentrum = @hoehe_mini / 2.0 * I + @breite_mini / 2.0
+    @minifeld = mini
+
+  end
+
+  def farben(pos)
+    sum = 0
+    farbe = [0,0,0]
+    3.times do |i|
+      3.times do |j|
+        if i != 1
+          x = pos.real.to_i + i / 2
+          x_strich = pos.real.to_i + (i / 2) * 2 - 1
+        else 
+          x = pos.real
+          x_strich = pos.real.to_i
+        end
+        if j != 1
+          y = pos.imag.to_i + j / 2
+          y_strich = pos.imag.to_i + (j / 2) * 2 - 1
+        else
+          y = pos.imag
+          y_strich = pos.imag.to_i
+        end
+        pos_hier = x + I * y
+        pos_hier_strich = x_strich + I * y_strich
+        if klein?(pos_hier_strich)
+          staerke = (Math::cos([((pos_hier.real - pos.real) * Math::PI * 2).abs, Math::PI].min) + 1) / 2
+          staerke *= (Math::cos([((pos_hier.imag - pos.imag) * Math::PI * 2).abs, Math::PI].min) + 1) / 2
+          farbe_hier = @minifeld[pos_hier_strich.imag][pos_hier_strich.real]
+          farbe[0] += (farbe_hier / 65536) * staerke
+          farbe[1] += ((farbe_hier / 256) % 256) * staerke
+          farbe[2] += (farbe_hier % 256) * staerke
+          sum += staerke
+        end
+      end
+    end
+    if sum > 0
+      farbe.collect! {|f|
+        f /= sum
+      }
+    end
+    farbe
+  end
+
+
+end
