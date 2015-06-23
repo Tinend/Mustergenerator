@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
+require "/home/ulrich/ruby/blume2-0/Version.rb"
 class Farbpallette
 
   I = Complex::I
-  VERSION = "3-0"
+  VERSION = Version.new(3,0)
   EPSILON = 0.00000001
 
   def initialize(zufall)

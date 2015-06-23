@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+require "/home/ulrich/ruby/blume2-0/Version.rb"
 require "/home/ulrich/ruby/blume2-0/zufaelle/Zufall3-0.rb"
 require "/home/ulrich/ruby/blume2-0/farbpallette/Farbpallette3-0.rb"
 require "/home/ulrich/ruby/blume2-0/bewerter/Bewerter3-0.rb"
@@ -6,7 +7,7 @@ require "/home/ulrich/ruby/blume2-0/bewerter/Bewerter3-0.rb"
 class Feld
 
   I = Complex::I
-  VERSION = "V3-1"
+  VERSION = Version.new(3,1)
 
   def initialize(zufall, hoehe, breite, verkleinerung, verschiebung, farbpallette)
     @schoenheit = 0
@@ -324,9 +325,7 @@ class Feld
     rueck = []
     3.times do |i|
       3.times do |j|
-        if i != 1 or j != 1
-          rueck.push(pos + (i - 1 + I * j - I) * @verkleinerung)
-        end
+        rueck.push(pos + (i - 1 + I * j - I) * @verkleinerung)
       end
     end
     return rueck

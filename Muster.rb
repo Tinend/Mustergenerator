@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 # -*- coding: utf-8 -*-
 
+require "/home/ulrich/ruby/blume2-0/Version.rb"
 require "/home/ulrich/ruby/blume2-0/umwandeln.rb"
 require "/home/ulrich/ruby/blume2-0/felder/Feld3-0.rb"
 require "/home/ulrich/ruby/blume2-0/Farben.rb"
@@ -8,9 +9,9 @@ require "/home/ulrich/ruby/blume2-0/Zentrum.rb"
 
 hoehe = 480
 breite = 480
-verkleinerung = 200
+verkleinerung = 2000
 verschiebung = breite / 2.0 + Complex::I * hoehe / 2.0
-100.times do
+1.times do
   z = 1000 ** 100
   until rand(1000) == 0
     z *= 10
@@ -30,9 +31,9 @@ verschiebung = breite / 2.0 + Complex::I * hoehe / 2.0
   puts "Bild speichern"
   nummern = feld.nummern
   farben = Farben.new(nummern.length)
-  version = Feld::VERSION
+  version = [Feld::VERSION, Farben::VERSION, Bewerter::VERSION, Farbpallette::VERSION, Zufall::VERSION].max.to_s
   puts [feld.schoenheit, bewertung]
-  dateiname = "/home/ulrich/ruby/blume2-0/bilder/muster#{version}_#{zufall%(10**30)}.xpm"
+  dateiname = "/home/ulrich/ruby/blume2-0/bilder/muster#{version.to_s}_#{zufall%(10**30)}.xpm"
   
   umwandeln(feld.feld, dateiname, farben, nummern, zufall, bewertung)
 end

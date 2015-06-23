@@ -1,6 +1,7 @@
+require "/home/ulrich/ruby/blume2-0/Version.rb"
 class Zufall
 
-  Version = "V3-1"
+  VERSION = Version.new(3,1)
 
   def initialize(zufall)
     @zufall = zufall
