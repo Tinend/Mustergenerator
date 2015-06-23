@@ -38,9 +38,13 @@ class Feld
         @feld[y][x] = farbe
         @nummern[farbe] = 1
       end
-      @feld[y].pop
+      @zufall.verwischung.times do
+        @feld[y].pop
+      end
     end
-    @feld.pop
+    @zufall.verwischung.times do
+      @feld.pop
+    end
   end
 
   def entwischen(x,y)

@@ -4,7 +4,7 @@ require "/home/ulrich/ruby/blume2-0/Version.rb"
 class Bewerter
 
   VERSION = Version.new(3,0)
-  ABZUGSKONSTANTE = 10000
+  ABZUGSKONSTANTE = 100000
   MAXDIFF = 40
   PUNKTEKONSTANTE = 100
 
