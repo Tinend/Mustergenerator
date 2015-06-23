@@ -1,0 +1,14 @@
+class Wenn
+  def initialize(pos, zufall, negativ = false)
+    @pos = pos
+    @negativ = negativ
+  end
+
+  def verschieben?(punkt)
+    unless negativ
+      return true
+    else
+      return false
+    end
+  end
+end

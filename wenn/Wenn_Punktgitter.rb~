@@ -1,0 +1,4 @@
+
+class Wenn_Punktgitter < Wenn
+  
+end

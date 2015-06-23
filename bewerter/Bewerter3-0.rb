@@ -134,8 +134,6 @@ class Bewerter
 
   # bewertet einen Punkt und die acht umgebenden Punkte
   def punkt_bewerten(pos, umgebung, bild)
-    mindiff = []
-    punktbewertung = 0.0
     punkte = []
     umgebung.each do |b|
       punkte.push(bild.punkterstellen(b.real, b.imag))
@@ -144,7 +142,7 @@ class Bewerter
     bewertung = gewichte.max
     qm = 0
     gewichte.each do |g|
-      qm += g ** 2 / 8.0
+      qm += (g - 10) * (g - 10).abs / 8.0 + 12.5
     end
     p [qm, gewichte.max]
     bewertung -= qm ** 0.5
@@ -154,34 +152,11 @@ class Bewerter
   # bewertet 20 zufällige Punkte in Abhängigkeit von ihrer Umgebung
   def bewerte_kontrast(bild)
     bewertung = 0
-    nullsum = 0
-    mindiffsum = 0
-    diffsum = 0
     20.times do
       pos = bild.zufallspos
       umgebung = bild.umgebung(pos)
       bewertung += punkt_bewerten(pos, umgebung, bild)
-
-    #   umgebung.each do |b|
-    #    farbe2 = bild.punkterstellen(b.real, b.imag)
-    #    vergleich = farbvergleich(farbe1, farbe2)
-    #    diff = (vergleich[0] * vergleich[1]) ** 0.5 + vergleich[2] 
-    #    if diff == 0
-    #      punktbewertung -= 1
-    #      nullsum += 1
-    #    end
-    #    mindiff.push(diff)
-    #    punktbewertung += diff ** 2 / 1000
-    #    diffsum += diff ** 2 / 1000
-    #  end
-    #  mindiff.sort!
-    #  mindiff.each_with_index do |md, i|
-    #    punktbewertung -= md ** 2 / (70 * 2 ** i)
-    #    mindiffsum += md ** 2 / (70 * 2 ** i)
-    #  end
-    #  bewertung += punktbewertung
     end
-#    p ["kontrast", bewertung, nullsum, mindiffsum, diffsum]
     return bewertung
   end
 
