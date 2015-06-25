@@ -82,7 +82,11 @@ class Farbpallette
     sum[2] -= hell / 3
     minus_max_sum = sum.min
     plus_max_sum = sum.max
-    faktor = [[(kraft - 1.0 / 3) * hell / minus_max_sum, (kraft - 1.0 / 3) * (765 - hell) / minus_max_sum].min, [(1.0 / 3 - kraft) * hell / plus_max_sum, (1.0 / 3 - kraft) * (765 - hell) / plus_max_sum].min].min
+    if minus_max_sum != 0
+      faktor = [[(kraft - 1.0 / 3) * hell / minus_max_sum, (kraft - 1.0 / 3) * (765 - hell) / minus_max_sum].min, [(1.0 / 3 - kraft) * hell / plus_max_sum, (1.0 / 3 - kraft) * (765 - hell) / plus_max_sum].min].min
+    else
+      faktor = 1
+    end
     farbe = [faktor * sum[0] + hell / 3, faktor * sum[1] + hell / 3, faktor * sum[2] + hell / 3]
     return farbe
   end

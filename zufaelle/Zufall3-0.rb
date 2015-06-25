@@ -1,28 +1,66 @@
 require "/home/ulrich/ruby/blume2-0/Version.rb"
+require "/home/ulrich/ruby/blume2-0/wenn/Wenn.rb"
+require "/home/ulrich/ruby/blume2-0/wenn/Wenn_Punktgitter.rb"
+
+
+class Wennspeicher
+  def initialize(wenn, wkeit = 0)
+    @wenn = wenn
+    @wkeit = wkeit
+  end
+  
+  attr_reader :wenn
+  attr_accessor :wkeit
+end
+
 class Zufall
 
-  VERSION = Version.new(3,1)
+  VERSION = Version.new(3,4)
+  WENNS = [
+           Wennspeicher.new(Wenn, 100),
+           Wennspeicher.new(Wenn_Punktgitter)
+          ]
 
   def initialize(zufall)
     @zufall = zufall
+    @wahl = :nichts
   end
 
   attr_reader :spiralzufall, :erstes, :spiralwahl, :wahlsumme, :verwischung, :faktor
 
-  def gewaelt
-    @zufall /= @wahlsumme
-  end
-
   def gross?
     return @zufall >= 10**22
   end
+  
+  def waehlen
+    if @zufall % @wahlsumme < @zykelwahl
+      @wahl = :zykel
+      @zufall /= @wahlsumme
+      return
+    end
+    @zufall -= @zykelwahl
+    if @zufall % @wahlsumme < @spiralwahl
+      @wahl = :spiral
+      @zufall /= @wahlsumme
+      return
+    end
+    @zufall -= @spiralwahl
+    if @zufall % @wahlsumme < @mehrfachspiralwahl
+      @wahl = :mehrfachspiral
+      @zufall /= @wahlsumme
+      return
+    end
+    @zufall /= @wahlsumme
+    @wahl = :moeb
+  end
 
   def zykelwahl?
-    return @zufall % @wahlsumme < @zykelwahl
+    waehlen
+    return @wahl == :zykel
   end
 
   def spiralwahl?
-    return @zufall % @wahlsumme < @zykelwahl + @spiralwahl
+    return @wahl == :spiral
   end
  
   def pos(bereich, schieben)
@@ -32,11 +70,11 @@ class Zufall
   end
   
   def mehrfachspiralwahl?
-    @zufall % @wahlsumme < @zykelwahl + @spiralwahl + @mehrfachspiralwahl
+    return @wahl == :mehrfachspiral
   end
 
   def kuerzen(x)
-    @zufall /= x
+    @zufall /= x.to_i
   end
 
   def farbe
@@ -113,6 +151,33 @@ class Zufall
       @faktor += 0.1
       @zufall /= 10
     end
+    
+    @wennsum = 0
+    WENNS.each do |w|
+      while @zufall % 2 != 0
+        w.wkeit += 1
+        w.wkeit *= 2
+        @zufall /= 2
+      end
+      @wennsum += w.wkeit
+    end
+  end
+
+  def wenn
+    wahl = @zufall % @wennsum
+    @zufall /= @wennsum
+    pos = @zufall % 10000 + Complex::I * (@zufall % 10001) - 5000 - 5000 * Complex::I
+    WENNS.each_with_index do |w, i|
+      wahl -= w.wkeit
+      if wahl < 0
+        negativ = false
+        if i >= 1
+          negativ = true if @zufall % 2 != 0
+          @zufall /= 2
+        end
+        return w.wenn.new(pos, self)
+      end
+    end
   end
 
   def drehzahl
@@ -133,8 +198,11 @@ class Zufall
       @zufall /= x
       return rueck
     else
-      @zufall /= 3
-      return (@zufall % 10 ** 20) / 10.0 ** 20
+      wahl = (@zufall % 10 ** 20) / 10.0 ** 20
+      @zufall /= 17
+      return wahl
     end
   end
+
+  
 end

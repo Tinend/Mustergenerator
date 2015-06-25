@@ -7,7 +7,7 @@ require "/home/ulrich/ruby/blume2-0/bewerter/Bewerter3-0.rb"
 class Feld
 
   I = Complex::I
-  VERSION = Version.new(3,1)
+  VERSION = Version.new(3,4)
 
   def initialize(zufall, hoehe, breite, verkleinerung, verschiebung, farbpallette)
     @schoenheit = 0
@@ -62,20 +62,22 @@ class Feld
   def punkterstellen(x,y)
     pos = ((x - @verschiebung.real) * @verkleinerung.to_f + I * (y - @verschiebung.imag.to_f) * @verkleinerung)
     @wandlungen.each do |w|
-      if w.was == :moeb
-        pos = moeb(pos, w.wie)
-      elsif w.was == :zykel
-        pos = zykel(pos, w.wie, w.wo)
-      elsif w.was == :spiral
-        pos = spiral(pos, w.wie, w.wo)
-      elsif w.was == :drehung
-        pos = drehen(pos, w.wie, w.wo)
-      elsif w.was == :streckung
-        pos = streckung(pos, w.wie, w.wo)
-      elsif w.was == :invertieren
-        pos = invertieren(pos, w.wie, w.wo)
-      elsif w.was == :verschiebung
-        pos += w.wie
+      if w.wenn.verschieben?(pos)
+        if w.was == :moeb
+          pos = moeb(pos, w.wie)
+        elsif w.was == :zykel
+          pos = zykel(pos, w.wie, w.wo)
+        elsif w.was == :spiral
+          pos = spiral(pos, w.wie, w.wo)
+        elsif w.was == :drehung
+          pos = drehen(pos, w.wie, w.wo)
+        elsif w.was == :streckung
+          pos = streckung(pos, w.wie, w.wo)
+        elsif w.was == :invertieren
+          pos = invertieren(pos, w.wie, w.wo)
+        elsif w.was == :verschiebung
+          pos += w.wie
+        end
       end
     end
     return @farbpallette.nahfarbe(pos)
@@ -161,20 +163,19 @@ class Feld
     if @zufall.erstes == :zykel
       alpha = @zufall.alpha
       mal = @zufall.drehzahl
-      w.push(Wandel.new(:zykel, [mal, (Math::sin(alpha) +  Math::cos(alpha) * I)], 0))
+      w.push(Wandel.new(:zykel, [mal, (Math::sin(alpha) +  Math::cos(alpha) * I)], 0, @zufall.wenn))
     elsif @zufall.erstes == :spiral
       radius = spiralradius
-      w.push(Wandel.new(:spiral, radius, 0))
+      w.push(Wandel.new(:spiral, radius, 0, @zufall.wenn))
     elsif @zufall.erstes == :mehrfachspiral
       alpha = @zufall.alpha
       mal = @zufall.drehzahl
-      w.push(Wandel.new(:zykel, [mal, (Math::sin(alpha) +  Math::cos(alpha) * I)], 0))
+      w.push(Wandel.new(:zykel, [mal, (Math::sin(alpha) +  Math::cos(alpha) * I)], 0, @zufall.wenn))
       radius = spiralradius
-      w.push(Wandel.new(:spiral, radius, 0))
+      w.push(Wandel.new(:spiral, radius, 0, @zufall.wenn))
     end
     while @zufall.gross?
       if @zufall.zykelwahl?
-        @zufall.gewaelt
         if d != 0
           a /= d
           b /= d
@@ -182,7 +183,7 @@ class Feld
           d = 1
         end
         if [a, b, c, d] != [1, 0, 0, 1]
-          w.push(Wandel.new(:moeb, [a, b, c, d], 0))
+          w.push(Wandel.new(:moeb, [a, b, c, d], 0, @zufall.wenn))
         end
         a = 1
         b = 0
@@ -194,9 +195,8 @@ class Feld
         mal = @zufall.drehzahl
         x = 0
         y = 0
-        w.push(Wandel.new(:zykel, [mal, (Math::sin(alpha) +  Math::cos(alpha) * I)], (x + I * y)))
+        w.push(Wandel.new(:zykel, [mal, (Math::sin(alpha) +  Math::cos(alpha) * I)], (x + I * y), @zufall.wenn))
       elsif @zufall.spiralwahl?
-        @zufall.gewaelt
         if d != 0
           a /= d
           b /= d
@@ -204,7 +204,7 @@ class Feld
           d = 1
         end
         if [a, b, c, d] != [1, 0, 0, 1]
-          w.push(Wandel.new(:moeb, [a, b, c, d], 0))
+          w.push(Wandel.new(:moeb, [a, b, c, d], 0, @zufall.wenn))
         end
         a = 1
         b = 0
@@ -215,9 +215,8 @@ class Feld
         y = @zufall.pos(2000, 1000)
         x = 0
         y = 0
-        w.push(Wandel.new(:spiral, radius, (x + I * y)))
+        w.push(Wandel.new(:spiral, radius, (x + I * y), @zufall.wenn))
       elsif @zufall.mehrfachspiralwahl?
-        @zufall.gewaelt
         if d != 0
           a /= d
           b /= d
@@ -225,7 +224,7 @@ class Feld
           d = 1
         end
         if [a, b, c, d] != [1, 0, 0, 1]
-          w.push(Wandel.new(:moeb, [a, b, c, d], 0))
+          w.push(Wandel.new(:moeb, [a, b, c, d], 0, @zufall.wenn))
         end
         a = 1
         b = 0
@@ -237,9 +236,9 @@ class Feld
         mal = @zufall.drehzahl
         x = 0
         y = 0
-        w.push(Wandel.new(:zykel, [mal, (Math::sin(alpha) +  Math::cos(alpha) * I)], (x + I * y)))
+        w.push(Wandel.new(:zykel, [mal, (Math::sin(alpha) +  Math::cos(alpha) * I)], (x + I * y), @zufall.wenn))
         radius = spiralradius
-        w.push(Wandel.new(:spiral, radius, (x + I * y)))
+        w.push(Wandel.new(:spiral, radius, (x + I * y), @zufall.wenn))
     # elsif false
     #    r = (@zufall % 100 + 1) * 0.1
     #    @zufall /= 100
@@ -250,12 +249,10 @@ class Feld
     #    zahl = x + I * y
     #    a,b,c,d = moeb_invertieren(a, b, c, d, zahl, r)
       elsif @zufall.zufaellig(5) <= 1
-        @zufall.gewaelt
         x = @zufall.pos(50000, 25000)
         y = @zufall.pos(50000, 25000)
         a, b, c, d = moeb_verschieben(a,b,c,d, x + I * y)
       else
-        @zufall.gewaelt
         x = @zufall.pos(10000, 5000)
         y = @zufall.pos(10000, 5000)
         a, b, c, d = moeb_drehen(a, b, c, d, x + I * y, @zufall.alpha)
@@ -268,7 +265,7 @@ class Feld
       d = 1
     end
     if [a, b, c, d] != [1, 0, 0, 1]
-      w.push(Wandel.new(:moeb, [a, b, c, d], 0))
+      w.push(Wandel.new(:moeb, [a, b, c, d], 0, @zufall.wenn))
     end
     w
   end
@@ -370,10 +367,11 @@ end
 
 
 class Wandel
-  def initialize(was, wie, wo)
+  def initialize(was, wie, wo, wenn)
     @was = was
     @wie = wie
     @wo = wo
+    @wenn = wenn
   end
-  attr_reader :was, :wie, :wo
+  attr_reader :was, :wie, :wo, :wenn
 end

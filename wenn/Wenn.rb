@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require "/home/ulrich/ruby/blume2-0/Version.rb"
 
 class Wenn
@@ -9,7 +10,16 @@ class Wenn
     @negativ = negativ
   end
 
+  #gibt zurück, ob der gegebene Punkt verschoben (o.ä.) werden soll
   def verschieben?(punkt)
     not @negativ
+  end
+
+  def xor(x,y)
+    if x
+      return y == false
+    else
+      return y
+    end
   end
 end
