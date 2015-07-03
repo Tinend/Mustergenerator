@@ -12,8 +12,8 @@ require "/home/ulrich/ruby/blume2-0/wenn/Wenn_Punktgitter.rb"
 force = false
 fzufall = 0
 VERSION = Version.new(3,4)
-hoehe = 480
-breite = 480
+hoehe = 240
+breite = 240
 verkleinerung = 1000
 verschiebung = breite / 2.0 + Complex::I * hoehe / 2.0
 version = [Feld::VERSION, Farben::VERSION, Bewerter::VERSION, Farbpallette::VERSION, Zufall::VERSION, VERSION].max.to_s

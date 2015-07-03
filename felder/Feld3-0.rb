@@ -163,16 +163,16 @@ class Feld
     if @zufall.erstes == :zykel
       alpha = @zufall.alpha
       mal = @zufall.drehzahl
-      w.push(Wandel.new(:zykel, [mal, (Math::sin(alpha) +  Math::cos(alpha) * I)], 0, @zufall.wenn))
+      w.push(Wandel.new(:zykel, [mal, (Math::sin(alpha) +  Math::cos(alpha) * I)], 0, @zufall.wenn(:zykel)))
     elsif @zufall.erstes == :spiral
       radius = spiralradius
-      w.push(Wandel.new(:spiral, radius, 0, @zufall.wenn))
+      w.push(Wandel.new(:spiral, radius, 0, @zufall.wenn(:spiral)))
     elsif @zufall.erstes == :mehrfachspiral
       alpha = @zufall.alpha
       mal = @zufall.drehzahl
-      w.push(Wandel.new(:zykel, [mal, (Math::sin(alpha) +  Math::cos(alpha) * I)], 0, @zufall.wenn))
+      w.push(Wandel.new(:zykel, [mal, (Math::sin(alpha) +  Math::cos(alpha) * I)], 0, @zufall.wenn(:zykel)))
       radius = spiralradius
-      w.push(Wandel.new(:spiral, radius, 0, @zufall.wenn))
+      w.push(Wandel.new(:spiral, radius, 0, @zufall.wenn(:spiral)))
     end
     while @zufall.gross?
       if @zufall.zykelwahl?
@@ -183,7 +183,7 @@ class Feld
           d = 1
         end
         if [a, b, c, d] != [1, 0, 0, 1]
-          w.push(Wandel.new(:moeb, [a, b, c, d], 0, @zufall.wenn))
+          w.push(Wandel.new(:moeb, [a, b, c, d], 0, @zufall.wenn(:moeb)))
         end
         a = 1
         b = 0
@@ -195,7 +195,7 @@ class Feld
         mal = @zufall.drehzahl
         x = 0
         y = 0
-        w.push(Wandel.new(:zykel, [mal, (Math::sin(alpha) +  Math::cos(alpha) * I)], (x + I * y), @zufall.wenn))
+        w.push(Wandel.new(:zykel, [mal, (Math::sin(alpha) +  Math::cos(alpha) * I)], (x + I * y), @zufall.wenn(:zykel)))
       elsif @zufall.spiralwahl?
         if d != 0
           a /= d
@@ -204,7 +204,7 @@ class Feld
           d = 1
         end
         if [a, b, c, d] != [1, 0, 0, 1]
-          w.push(Wandel.new(:moeb, [a, b, c, d], 0, @zufall.wenn))
+          w.push(Wandel.new(:moeb, [a, b, c, d], 0, @zufall.wenn(:moeb)))
         end
         a = 1
         b = 0
@@ -215,7 +215,7 @@ class Feld
         y = @zufall.pos(2000, 1000)
         x = 0
         y = 0
-        w.push(Wandel.new(:spiral, radius, (x + I * y), @zufall.wenn))
+        w.push(Wandel.new(:spiral, radius, (x + I * y), @zufall.wenn(:spiral)))
       elsif @zufall.mehrfachspiralwahl?
         if d != 0
           a /= d
@@ -224,7 +224,7 @@ class Feld
           d = 1
         end
         if [a, b, c, d] != [1, 0, 0, 1]
-          w.push(Wandel.new(:moeb, [a, b, c, d], 0, @zufall.wenn))
+          w.push(Wandel.new(:moeb, [a, b, c, d], 0, @zufall.wenn(:moeb)))
         end
         a = 1
         b = 0
@@ -236,9 +236,9 @@ class Feld
         mal = @zufall.drehzahl
         x = 0
         y = 0
-        w.push(Wandel.new(:zykel, [mal, (Math::sin(alpha) +  Math::cos(alpha) * I)], (x + I * y), @zufall.wenn))
+        w.push(Wandel.new(:zykel, [mal, (Math::sin(alpha) +  Math::cos(alpha) * I)], (x + I * y), @zufall.wenn(:spiral)))
         radius = spiralradius
-        w.push(Wandel.new(:spiral, radius, (x + I * y), @zufall.wenn))
+        w.push(Wandel.new(:spiral, radius, (x + I * y), @zufall.wenn(:spiral)))
     # elsif false
     #    r = (@zufall % 100 + 1) * 0.1
     #    @zufall /= 100
@@ -265,7 +265,7 @@ class Feld
       d = 1
     end
     if [a, b, c, d] != [1, 0, 0, 1]
-      w.push(Wandel.new(:moeb, [a, b, c, d], 0, @zufall.wenn))
+      w.push(Wandel.new(:moeb, [a, b, c, d], 0, @zufall.wenn(:moeb)))
     end
     w
   end

@@ -15,7 +15,7 @@ end
 
 class Zufall
 
-  VERSION = Version.new(3,4)
+  VERSION = Version.new(3,5)
   WENNS = [
            Wennspeicher.new(Wenn, 100),
            Wennspeicher.new(Wenn_Punktgitter)
@@ -151,6 +151,7 @@ class Zufall
       @faktor += 0.1
       @zufall /= 10
     end
+    @zufall /= 10
     
     @wennsum = 0
     WENNS.each do |w|
@@ -159,11 +160,15 @@ class Zufall
         w.wkeit *= 2
         @zufall /= 2
       end
+      @zufall /= 2
       @wennsum += w.wkeit
     end
   end
 
-  def wenn
+  def wenn(was)
+    if was != :moeb
+      return WENNS[0].wenn.new(0, self)
+    end
     wahl = @zufall % @wennsum
     @zufall /= @wennsum
     pos = @zufall % 10000 + Complex::I * (@zufall % 10001) - 5000 - 5000 * Complex::I

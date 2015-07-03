@@ -5,11 +5,11 @@ require "/home/ulrich/ruby/blume2-0/Version.rb"
 class Wenn_Punktgitter < Wenn
   VERSION = Version.new(3,3)
   RADIUS = 2000
-  ABSTAND = 20000
+  ABSTAND = 100000
 
   def initialize(pos, zufall, negativ = false)
     super(pos, zufall, negativ)
-    @radius = zufall.zufaellig(0) * Radius
+    @radius = zufall.zufaellig(0) * RADIUS
     @verschiebung1 = (zufall.zufaellig(0) + zufall.zufaellig(0) * Complex::I) * ABSTAND
     @verschiebung2 = (zufall.zufaellig(0) + zufall.zufaellig(0) * Complex::I) * ABSTAND
   end
@@ -33,6 +33,7 @@ class Wenn_Punktgitter < Wenn
   def verschieben?(punkt)
     punkt -= @pos
     x, y = gleichungs_syst(punkt)
+    return true if y == nil
     x_neu = x % 1
     y_neu = y % 1
     x -= x_neu
